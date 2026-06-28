@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.repositories.route_repository import route_repository
-from app.schemas.route import RouteCreate, RouteUpdate, RouteCompleteCreate
+from app.schemas.route import RouteCreate, RouteUpdate, RouteCompleteCreate, RouteScheduleCreate, RouteWizardCreate
 from app.models.route import Route
 from app.models.stop import Stop
 from app.models.bus import Bus

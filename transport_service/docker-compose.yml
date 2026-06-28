@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  transport_service:
+    build: .
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres_transport:5432/transport_db
+      - JWT_SECRET_KEY=devsecret_change_me_in_prod
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - CORS_ORIGINS=*
+    depends_on:
+      - postgres_transport
+
+  postgres_transport:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=transport_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - transport_pgdata:/var/lib/postgresql/data
+
+  pgadmin_transport:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@buslocator.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5051:80"
+    depends_on:
+      - postgres_transport
+
+volumes:
+  transport_pgdata:

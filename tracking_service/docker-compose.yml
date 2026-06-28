@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  tracking_service:
+    build: .
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres_tracking:5432/tracking_db
+      - REDIS_URL=redis://redis_tracking:6379/0
+      - JWT_SECRET_KEY=super-secret-key-for-buslocator
+      - JWT_ALGORITHM=HS256
+      - CORS_ORIGINS=http://localhost:5173
+    depends_on:
+      - postgres_tracking
+      - redis_tracking
+    volumes:
+      - .:/app
+
+  postgres_tracking:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=tracking_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_tracking_data:/var/lib/postgresql/data
+
+  redis_tracking:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+
+volumes:
+  postgres_tracking_data:

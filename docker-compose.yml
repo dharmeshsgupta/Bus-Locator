@@ -1,0 +1,156 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------
+  # Auth Service & Database
+  # ----------------------------------------
+  auth_service:
+    build:
+      context: ./auth_service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres_auth:5432/buslocator_auth
+      - JWT_SECRET_KEY=supersecretkey-please-change-in-production
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+    depends_on:
+      postgres_auth:
+        condition: service_healthy
+    networks:
+      - buslocator_net
+
+  postgres_auth:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=buslocator_auth
+    ports:
+      - "5435:5432"
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - buslocator_net
+
+  # ----------------------------------------
+  # Transport Service & Database
+  # ----------------------------------------
+  transport_service:
+    build:
+      context: ./transport_service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres_transport:5432/transport_db
+      - JWT_SECRET_KEY=supersecretkey-please-change-in-production
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - CORS_ORIGINS=*
+    depends_on:
+      postgres_transport:
+        condition: service_healthy
+    networks:
+      - buslocator_net
+
+  postgres_transport:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=transport_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - transport_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - buslocator_net
+
+  # ----------------------------------------
+  # Tracking Service, Database & Redis Cache
+  # ----------------------------------------
+  tracking_service:
+    build:
+      context: ./tracking_service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres_tracking:5432/tracking_db
+      - REDIS_URL=redis://redis_tracking:6379/0
+      - JWT_SECRET_KEY=supersecretkey-please-change-in-production
+      - JWT_ALGORITHM=HS256
+      - CORS_ORIGINS=*
+    depends_on:
+      postgres_tracking:
+        condition: service_healthy
+      redis_tracking:
+        condition: service_started
+    networks:
+      - buslocator_net
+
+  postgres_tracking:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=tracking_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - tracking_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - buslocator_net
+
+  redis_tracking:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    networks:
+      - buslocator_net
+
+  # ----------------------------------------
+  # Frontend Dashboard (Nginx SPA)
+  # ----------------------------------------
+  frontend_dashboard:
+    build:
+      context: ./frontend_dashboard
+      dockerfile: Dockerfile
+      args:
+        - VITE_AUTH_API_URL=http://localhost:8000
+        - VITE_TRANSPORT_API_URL=http://localhost:8001
+        - VITE_TRACKING_API_URL=http://localhost:8002
+    ports:
+      - "80:80"
+    depends_on:
+      - auth_service
+      - transport_service
+      - tracking_service
+    networks:
+      - buslocator_net
+
+networks:
+  buslocator_net:
+    driver: bridge
+
+volumes:
+  auth_pgdata:
+  transport_pgdata:
+  tracking_pgdata:

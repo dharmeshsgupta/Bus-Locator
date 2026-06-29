@@ -49,7 +49,7 @@ export function AdminLogin() {
             <span className="absolute left-md material-symbols-outlined text-outline">mail</span>
             <input
               className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-lg pl-[48px] pr-md py-sm h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70"
-              id="admin-email" placeholder="admin@buslocator.com" type="email"
+              id="admin-email" placeholder="Enter your email" type="email"
               value={email} onChange={(e) => setEmail(e.target.value)} required
             />
           </div>
@@ -61,14 +61,10 @@ export function AdminLogin() {
             <span className="absolute left-md material-symbols-outlined text-outline">lock</span>
             <input
               className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-lg pl-[48px] pr-md py-sm h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70"
-              id="admin-password" placeholder="admin123" type="password"
+              id="admin-password" placeholder="Enter your password" type="password"
               value={password} onChange={(e) => setPassword(e.target.value)} required
             />
           </div>
-        </div>
-
-        <div className="text-xs text-center text-slate-500 -mt-md">
-          Default Admin: <b>admin@buslocator.com</b> / <b>admin123</b>
         </div>
 
         {error && (

@@ -25,7 +25,12 @@ class WebSocketService {
   private lastSequence: number = -1;
 
   constructor() {
-    let baseUrl = import.meta.env.VITE_TRACKING_WS_URL || 'ws://localhost:8002';
+    let baseUrl = import.meta.env.VITE_TRACKING_WS_URL || '';
+    if (!baseUrl || baseUrl.includes('example.com')) {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.hostname;
+      baseUrl = `${protocol}//${host}:8002`;
+    }
     if (!baseUrl.endsWith('/ws/route')) {
       baseUrl = baseUrl.endsWith('/') ? baseUrl + 'ws/route' : baseUrl + '/ws/route';
     }

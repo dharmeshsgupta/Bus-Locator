@@ -18,7 +18,11 @@ export const trackingApi = {
     return response.data;
   },
   markWaiting: async (data: { route_id: string; stop_id: string; count?: number }) => {
-    const response = await trackingClient.post('/api/v1/tracking/waiting', data);
+    const response = await trackingClient.post('/api/v1/waiting/update', {
+      route_id: data.route_id,
+      stop_id: data.stop_id,
+      count: data.count !== undefined ? data.count : 1
+    });
     return response.data;
   }
 };

@@ -16,7 +16,7 @@ async def update_waiting_count(
     data: WaitingUpdate,
     db: AsyncSession = Depends(get_db),
     redis_client: redis.Redis = Depends(get_redis),
-    user = Depends(RequireRole(["driver", "admin", "super_admin"]))
+    user = Depends(RequireRole(["student", "driver", "admin", "super_admin"]))
 ):
     await waiting_service.process_waiting_update(db, redis_client, data)
     return {"status": "success", "message": "Waiting count updated and broadcasted."}

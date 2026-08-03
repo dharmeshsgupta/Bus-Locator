@@ -39,7 +39,13 @@ class ConnectionManager:
             "type": channel_type.upper() + "_UPDATE",
             "payload": message
         }
-        await redis_client.publish(key, json.dumps(wrapped_message))
+        try:
+            await redis_client.publish(key, json.dumps(wrapped_message))
+        except Exception as e:
+            logger.warning("redis_publish_failed", error=str(e))
+        
+        # Also directly notify local websocket connections
+        await self._send_to_local_connections(key, json.dumps(wrapped_message))
 
     async def _send_to_local_connections(self, channel: str, message: str):
         """
@@ -65,21 +71,21 @@ class ConnectionManager:
         """
         Background task to listen to Redis Pub/Sub.
         """
-        self.pubsub = redis_client.pubsub()
-        # Subscribe to all channels matching pattern: *:location, *:occupancy, *:waiting, *:eta
-        await self.pubsub.psubscribe("*:location", "*:occupancy", "*:waiting", "*:eta")
-        
-        logger.info("redis_pubsub_listener_started")
-        
         try:
+            self.pubsub = redis_client.pubsub()
+            # Subscribe to all channels matching pattern: *:location, *:occupancy, *:waiting, *:eta
+            await self.pubsub.psubscribe("*:location", "*:occupancy", "*:waiting", "*:eta")
+            
+            logger.info("redis_pubsub_listener_started")
+            
             async for message in self.pubsub.listen():
-                if message["type"] == "pmessage":
+                if message and message.get("type") == "pmessage":
                     channel = message["channel"]
                     data = message["data"]
                     await self._send_to_local_connections(channel, data)
         except asyncio.CancelledError:
             logger.info("redis_pubsub_listener_stopped")
         except Exception as e:
-            logger.error("redis_pubsub_listener_error", exc_info=e)
+            logger.error("redis_pubsub_listener_error", error=str(e))
 
 manager = ConnectionManager()

@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.main import app
+from app.main import app as fastapi_app
 from app.core.database import get_db
 from app.models import Base
 from app.core.redis import get_redis
@@ -24,15 +24,24 @@ async def override_get_db():
     async with TestingSessionLocal() as session:
         yield session
 
-# Mock Redis using Fakeredis or a simple mock
 import fakeredis.aioredis
 mock_redis = fakeredis.aioredis.FakeRedis(decode_responses=True)
+
+import app.websocket.manager
+import app.core.redis
+import app.services.tracking_service
+import app.services.occupancy_service
+
+app.websocket.manager.redis_client = mock_redis
+app.core.redis.redis_client = mock_redis
+app.services.tracking_service.redis_client = mock_redis
+app.services.occupancy_service.redis_client = mock_redis
 
 async def override_get_redis():
     yield mock_redis
 
-app.dependency_overrides[get_db] = override_get_db
-app.dependency_overrides[get_redis] = override_get_redis
+fastapi_app.dependency_overrides[get_db] = override_get_db
+fastapi_app.dependency_overrides[get_redis] = override_get_redis
 
 @pytest_asyncio.fixture(scope="function", autouse=True)
 async def setup_db():

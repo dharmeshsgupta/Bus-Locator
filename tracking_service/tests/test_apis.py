@@ -1,11 +1,11 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
-from tests.conftest import app, get_test_token
+from tests.conftest import fastapi_app, get_test_token
 import uuid
 
 @pytest.mark.asyncio
 async def test_update_location():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://test") as client:
         token = get_test_token(role="driver")
         bus_id = str(uuid.uuid4())
         route_id = str(uuid.uuid4())
@@ -33,7 +33,7 @@ async def test_update_location():
 
 @pytest.mark.asyncio
 async def test_update_occupancy():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://test") as client:
         token = get_test_token(role="driver")
         bus_id = str(uuid.uuid4())
         route_id = str(uuid.uuid4())

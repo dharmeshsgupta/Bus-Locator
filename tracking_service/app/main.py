@@ -22,9 +22,18 @@ from app.websocket.tracking_ws import router as tracking_ws_router
 setup_telemetry()
 logger = structlog.get_logger(__name__)
 
+from app.models import Base
+from app.core.database import engine
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Run Redis Pub/Sub listener in the background
+    # Startup: Create tables and run Redis Pub/Sub listener in background
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        logger.error("database_table_creation_failed", error=str(e))
+
     manager.listener_task = asyncio.create_task(manager.listen_to_redis())
     logger.info("tracking_service_started")
     yield

@@ -7,12 +7,23 @@ from app.core.exceptions import global_exception_handler
 from app.api.health import router as health_router
 from app.api.v1 import routes, stops, buses, assignments, me
 
+from contextlib import asynccontextmanager
+from app.models import Base
+from app.core.database import engine
+
 setup_telemetry()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
 
 app = FastAPI(
     title="BusLocator Transport Service",
     description="Microservice managing Routes, Stops, Buses, and Assignments.",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Exception handlers

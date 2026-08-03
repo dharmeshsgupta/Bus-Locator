@@ -32,10 +32,10 @@ export function RouteStepDriver({ driverId, setDriverId, busId }: { driverId: st
 
   if (!busId) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] text-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8">
-        <AlertCircle className="w-12 h-12 text-amber-500 mb-4" />
+      <div className="flex flex-col items-center justify-center min-h-[300px] text-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 max-w-xl mx-auto w-full">
+        <AlertCircle className="w-12 h-12 text-amber-500 mb-4 flex-shrink-0" />
         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Bus Required</h3>
-        <p className="text-slate-500 max-w-sm">
+        <p className="text-slate-500 text-sm max-w-md leading-relaxed">
           You must select a bus in the previous step before assigning a driver. Drivers are assigned to buses, not directly to routes.
         </p>
       </div>

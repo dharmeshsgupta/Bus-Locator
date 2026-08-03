@@ -2,15 +2,21 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from '../components/common/Sidebar';
 import { Navbar } from '../components/common/Navbar';
+import { AIChatDrawer } from '../components/common/AIChatDrawer'; // <-- Import the chat drawer
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { OfflineToast } from '../components/OfflineToast';
 
 export function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false); // <-- Declare the chat open state
 
   return (
     <div className="flex h-screen w-full bg-background bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] text-on-background overflow-hidden">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onOpenChat={() => setIsChatOpen(true)}
+      />
       <main className="flex-1 flex flex-col relative h-full overflow-hidden">
         <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
         <div className="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop relative">
@@ -21,6 +27,10 @@ export function DashboardLayout() {
           </div>
         </div>
       </main>
+
+      {/* Render the chat drawer globally */}
+      <AIChatDrawer isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+
       <OfflineToast />
     </div>
   );

@@ -105,7 +105,14 @@ export function useRouteWizard(onSuccessCallback: () => void) {
       onSuccessCallback();
     },
     onError: (err: any) => {
-      toast.error(err?.response?.data?.detail || 'Failed to create route');
+      const detail = err?.response?.data?.detail;
+      if (typeof detail === 'string') {
+        toast.error(detail);
+      } else if (Array.isArray(detail)) {
+        toast.error(detail.map((d: any) => d.msg || 'Validation error').join(', '));
+      } else {
+        toast.error(err?.message || 'Failed to create route');
+      }
     },
   });
 

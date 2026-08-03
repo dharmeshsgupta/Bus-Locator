@@ -4,10 +4,13 @@ import { useAuthStore } from '../../store/authStore';
 const authURL = import.meta.env.VITE_AUTH_API_URL || 'http://localhost:8000';
 const transportURL = import.meta.env.VITE_TRANSPORT_API_URL || 'http://localhost:8001';
 const trackingURL = import.meta.env.VITE_TRACKING_API_URL || 'http://localhost:8002';
+const agenticURL = import.meta.env.VITE_AGENTIC_API_URL || 'http://localhost:8003';  // <-- Add this
 
 export const authClient = axios.create({ baseURL: authURL, headers: { 'Content-Type': 'application/json' } });
 export const transportClient = axios.create({ baseURL: transportURL, headers: { 'Content-Type': 'application/json' } });
 export const trackingClient = axios.create({ baseURL: trackingURL, headers: { 'Content-Type': 'application/json' } });
+export const agenticClient = axios.create({ baseURL: agenticURL, headers: { 'Content-Type': 'application/json' } });  // <-- Add this
+
 
 let isRefreshing = false;
 let failedQueue: Array<{ resolve: (value?: unknown) => void; reject: (reason?: any) => void }> = [];
@@ -39,7 +42,7 @@ const setupInterceptors = (client: AxiosInstance) => {
     (response) => response,
     async (error: AxiosError) => {
       const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-      
+
       if (error.response?.status === 401 && originalRequest && !originalRequest._retry && originalRequest.url !== '/auth/refresh-token') {
         if (isRefreshing) {
           return new Promise(function (resolve, reject) {
@@ -65,7 +68,7 @@ const setupInterceptors = (client: AxiosInstance) => {
           // Explicitly use basic axios so we don't loop
           const { data } = await axios.post(`${authURL}/auth/refresh-token`, { refresh_token: refreshToken });
           useAuthStore.getState().updateToken(data.access_token, data.refresh_token);
-          
+
           processQueue(null, data.access_token);
           originalRequest.headers['Authorization'] = 'Bearer ' + data.access_token;
           return client(originalRequest);
@@ -83,9 +86,15 @@ const setupInterceptors = (client: AxiosInstance) => {
   );
 };
 
+
+
+
+
 setupInterceptors(authClient);
 setupInterceptors(transportClient);
 setupInterceptors(trackingClient);
+setupInterceptors(agenticClient);  // <-- Add this
+
 
 // Default export for generic non-microservice specific stuff if any, mapping to auth by default
 export default authClient;

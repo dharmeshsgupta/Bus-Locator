@@ -62,7 +62,9 @@ const roleLinks: Record<string, NavItem[]> = {
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenChat?: () => void;  // <-- Add this prop!
 }
+
 
 function CollapsibleMenuItem({
   link,
@@ -85,11 +87,10 @@ function CollapsibleMenuItem({
     <div className="space-y-xs">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between gap-md py-sm transition-colors duration-150 cursor-pointer ${
-          isChildActive
-            ? 'bg-slate-200/30 text-slate-900 border-l-[3px] border-primary font-semibold rounded-r-lg pl-[13px] pr-md'
-            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 rounded-lg pl-md pr-md'
-        }`}
+        className={`w-full flex items-center justify-between gap-md py-sm transition-colors duration-150 cursor-pointer ${isChildActive
+          ? 'bg-slate-200/30 text-slate-900 border-l-[3px] border-primary font-semibold rounded-r-lg pl-[13px] pr-md'
+          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 rounded-lg pl-md pr-md'
+          }`}
       >
         <div className="flex items-center gap-md">
           <span className={`material-symbols-outlined transition-colors ${isChildActive ? 'filled text-primary font-medium' : 'text-slate-400'}`}>
@@ -110,11 +111,10 @@ function CollapsibleMenuItem({
               <Link
                 key={sub.path}
                 to={sub.path}
-                className={`flex items-center py-xs px-sm text-body-md transition-colors duration-150 rounded-lg ${
-                  isSubActive
-                    ? 'bg-white text-slate-950 font-bold shadow-xs border-l-2 border-primary pl-[6px]'
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/30'
-                }`}
+                className={`flex items-center py-xs px-sm text-body-md transition-colors duration-150 rounded-lg ${isSubActive
+                  ? 'bg-white text-slate-950 font-bold shadow-xs border-l-2 border-primary pl-[6px]'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/30'
+                  }`}
               >
                 <span>{sub.name}</span>
               </Link>
@@ -126,7 +126,7 @@ function CollapsibleMenuItem({
   );
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, onOpenChat }: SidebarProps) {
   const { role, setLogout } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
@@ -154,9 +154,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       )}
 
       <nav
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-full py-lg border-r border-slate-200 bg-slate-50 w-[280px] shadow-xl md:shadow-none flex-shrink-0 transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-full py-lg border-r border-slate-200 bg-slate-50 w-[280px] shadow-xl md:shadow-none flex-shrink-0 transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         {/* Logo and Close Button */}
         <div className="px-md mb-xl flex items-center justify-between">
@@ -196,11 +195,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link
                 key={link.path}
                 to={link.path!}
-                className={`flex items-center gap-md py-sm transition-colors duration-150 ${
-                  isActive
-                    ? 'bg-white text-slate-900 border-l-[3px] border-primary font-semibold shadow-xs rounded-r-lg pl-[13px] pr-md'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 rounded-lg pl-md pr-md'
-                }`}
+                className={`flex items-center gap-md py-sm transition-colors duration-150 ${isActive
+                  ? 'bg-white text-slate-900 border-l-[3px] border-primary font-semibold shadow-xs rounded-r-lg pl-[13px] pr-md'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 rounded-lg pl-md pr-md'
+                  }`}
               >
                 <span className={`material-symbols-outlined transition-colors ${isActive ? 'filled text-primary font-medium' : 'text-slate-400'}`}>{link.icon}</span>
                 <span className="text-body-lg">{link.name}</span>
@@ -211,7 +209,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
         {/* Bottom */}
         <div className="px-sm mt-auto border-t border-slate-200 pt-sm">
-          <button className="w-full flex items-center justify-center gap-sm bg-white hover:bg-slate-50 text-slate-700 transition-colors py-sm rounded-lg mb-sm border border-slate-200 font-semibold shadow-xs">
+          <button
+            onClick={onOpenChat}
+            className="w-full flex items-center justify-center gap-sm bg-white hover:bg-slate-50 text-slate-700 transition-colors py-sm rounded-lg mb-sm border border-slate-200 font-semibold shadow-xs cursor-pointer"
+          >
             <span className="material-symbols-outlined text-[20px] text-primary">support_agent</span>
             <span className="text-label-md">Live Support</span>
           </button>
@@ -219,7 +220,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <span className="material-symbols-outlined text-slate-400">help</span>
             <span className="text-label-md">Help</span>
           </a>
-          <button onClick={handleLogout} className="w-full flex items-center gap-md text-slate-600 hover:text-[#e11d48] hover:bg-[#ffe4e6]/50 transition-colors rounded-lg px-md py-sm">
+          <button onClick={handleLogout} className="w-full flex items-center gap-md text-slate-600 hover:text-[#e11d48] hover:bg-[#ffe4e6]/50 transition-colors rounded-lg px-md py-sm cursor-pointer">
             <span className="material-symbols-outlined text-slate-400">logout</span>
             <span className="text-label-md">Logout</span>
           </button>

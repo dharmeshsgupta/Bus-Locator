@@ -19,3 +19,16 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 
 settings = Settings()
+
+import logging
+try:
+    url_parts = settings.DATABASE_URL.split("@")
+    if len(url_parts) > 1:
+        scheme_and_user = url_parts[0].split("://")
+        scheme = scheme_and_user[0]
+        host = url_parts[1]
+        logging.info(f"Loaded DATABASE_URL: {scheme}://***@{host}")
+    else:
+        logging.info(f"Loaded DATABASE_URL: {settings.DATABASE_URL}")
+except Exception:
+    logging.warning("Could not log DATABASE_URL")

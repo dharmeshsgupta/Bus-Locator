@@ -26,10 +26,16 @@ class WebSocketService {
 
   constructor() {
     let baseUrl = import.meta.env.VITE_TRACKING_WS_URL || '';
-    if (!baseUrl || baseUrl.includes('example.com')) {
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host = window.location.hostname;
-      baseUrl = `${protocol}//${host}:8002`;
+    const isProd = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    
+    if (!baseUrl || baseUrl.includes('example.com') || (isProd && baseUrl.includes('localhost'))) {
+      if (isProd) {
+        baseUrl = 'wss://bus-locator-tracking-service.onrender.com/ws/route';
+      } else {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.location.hostname;
+        baseUrl = `${protocol}//${host}:8002/ws/route`;
+      }
     }
     if (!baseUrl.endsWith('/ws/route')) {
       baseUrl = baseUrl.endsWith('/') ? baseUrl + 'ws/route' : baseUrl + '/ws/route';

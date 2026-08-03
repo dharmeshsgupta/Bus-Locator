@@ -1,15 +1,33 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../../store/authStore';
 
-const authURL = import.meta.env.VITE_AUTH_API_URL || 'http://localhost:8000';
-const transportURL = import.meta.env.VITE_TRANSPORT_API_URL || 'http://localhost:8001';
-const trackingURL = import.meta.env.VITE_TRACKING_API_URL || 'http://localhost:8002';
-const agenticURL = import.meta.env.VITE_AGENTIC_API_URL || 'http://localhost:8003';  // <-- Add this
+const isProd = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+const defaultAuth = isProd ? 'https://buslocator-auth.onrender.com' : 'http://localhost:8000';
+const defaultTransport = isProd ? 'https://bus-locator-transport-service.onrender.com' : 'http://localhost:8001';
+const defaultTracking = isProd ? 'https://bus-locator-tracking-service.onrender.com' : 'http://localhost:8002';
+const defaultAgentic = isProd ? 'https://agentic-ai-buslocator.onrender.com' : 'http://localhost:8003';
+
+const authURL = import.meta.env.VITE_AUTH_API_URL && !import.meta.env.VITE_AUTH_API_URL.includes('localhost') 
+  ? import.meta.env.VITE_AUTH_API_URL 
+  : defaultAuth;
+
+const transportURL = import.meta.env.VITE_TRANSPORT_API_URL && !import.meta.env.VITE_TRANSPORT_API_URL.includes('localhost') 
+  ? import.meta.env.VITE_TRANSPORT_API_URL 
+  : defaultTransport;
+
+const trackingURL = import.meta.env.VITE_TRACKING_API_URL && !import.meta.env.VITE_TRACKING_API_URL.includes('localhost') 
+  ? import.meta.env.VITE_TRACKING_API_URL 
+  : defaultTracking;
+
+const agenticURL = import.meta.env.VITE_AGENTIC_API_URL && !import.meta.env.VITE_AGENTIC_API_URL.includes('localhost') 
+  ? import.meta.env.VITE_AGENTIC_API_URL 
+  : defaultAgentic;
 
 export const authClient = axios.create({ baseURL: authURL, headers: { 'Content-Type': 'application/json' } });
 export const transportClient = axios.create({ baseURL: transportURL, headers: { 'Content-Type': 'application/json' } });
 export const trackingClient = axios.create({ baseURL: trackingURL, headers: { 'Content-Type': 'application/json' } });
-export const agenticClient = axios.create({ baseURL: agenticURL, headers: { 'Content-Type': 'application/json' } });  // <-- Add this
+export const agenticClient = axios.create({ baseURL: agenticURL, headers: { 'Content-Type': 'application/json' } });
 
 
 let isRefreshing = false;

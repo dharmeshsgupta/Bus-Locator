@@ -23,13 +23,9 @@ app.add_exception_handler(EntityNotFoundException, global_exception_handler)
 
 # Middlewares
 app.add_middleware(RequestIDMiddleware)
-origins = settings.CORS_ORIGINS.split(",")
-if "*" in origins:
-    allow_origins = []
-    allow_origin_regex = "https?://.*"
-else:
-    allow_origins = origins
-    allow_origin_regex = None
+origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]
+allow_origins = [o for o in origins if o != "*"] + ["https://bus-locator-six.vercel.app", "http://localhost:5173", "http://localhost:3000"]
+allow_origin_regex = r"https?://.*"
 
 app.add_middleware(
     CORSMiddleware,

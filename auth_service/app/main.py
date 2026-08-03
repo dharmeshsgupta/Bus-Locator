@@ -16,17 +16,21 @@ app = FastAPI(
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[],
-    allow_origin_regex="https?://.*",
+    allow_origins=["https://bus-locator-six.vercel.app", "http://localhost:5173", "http://localhost:3000"],
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
+
+
 from app.models import Base
 from app.core.database import engine
 from app.api import payment, finance
 from sqlalchemy import text
+
 
 @app.on_event("startup")
 async def startup_event():

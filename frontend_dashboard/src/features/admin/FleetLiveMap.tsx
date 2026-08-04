@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import 'leaflet/dist/leaflet.css';
 import { useQuery } from '@tanstack/react-query';
@@ -36,9 +36,19 @@ const ICONS = {
   inactive: getBusIcon('grey'),
 };
 
+function MapController({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(center, 15, { duration: 1.2 });
+  }, [center, map]);
+  return null;
+}
+
 export function FleetLiveMap() {
   const [fleetLocations, setFleetLocations] = useState<Record<string, any>>({});
   const [filterText, setFilterText] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([21.1702, 72.8311]);
   const [now, setNow] = useState(Date.now());
 
   // Force re-render every 10s to update "Offline" status colors based on timestamps
@@ -99,6 +109,26 @@ export function FleetLiveMap() {
 
   // Process data for map
   const buses = busesData?.items || [];
+
+  const matchingBuses = useMemo(() => {
+    if (!filterText.trim()) return [];
+    return buses.filter((bus: any) => 
+      bus.bus_number?.toLowerCase().includes(filterText.toLowerCase()) ||
+      bus.registration_number?.toLowerCase().includes(filterText.toLowerCase())
+    );
+  }, [buses, filterText]);
+
+  const handleSelectBus = (bus: any) => {
+    setFilterText(bus.bus_number);
+    setShowSuggestions(false);
+    const loc = fleetLocations[bus.id];
+    if (loc && loc.lat && loc.lng) {
+      setMapCenter([loc.lat, loc.lng]);
+      toast.success(`Centered map on Bus ${bus.bus_number}`, { icon: '🚌' });
+    } else {
+      toast.error(`Bus ${bus.bus_number} has no active GPS signal yet`);
+    }
+  };
   
   const mapMarkers = useMemo(() => {
     return buses.map((bus: any) => {
@@ -153,39 +183,83 @@ export function FleetLiveMap() {
     [21.90, 74.00]
   ];
 
-  const defaultCenter: [number, number] = [21.1702, 72.8311];
-
   return (
     <div className="flex flex-col h-full space-y-3">
       {/* Header & Filters */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-3.5 md:p-4 rounded-2xl shadow-xs border border-slate-200 gap-3">
-        <div>
-          <h2 className="text-base md:text-title-lg font-bold text-slate-900 tracking-tight">Global Fleet Tracker</h2>
-          <p className="text-xs text-slate-500 font-medium">Real-time overview of all active buses</p>
+      <div className="bg-white p-3.5 md:p-4 rounded-2xl shadow-xs border border-slate-200 flex flex-col gap-3">
+        <div className="flex justify-between items-center w-full">
+          <div>
+            <h2 className="text-base md:text-title-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">Global Fleet Tracker</h2>
+            <p className="text-[11px] md:text-body-sm text-slate-500 font-medium">Real-time overview of active buses</p>
+          </div>
+
+          <div className="flex items-center gap-2 text-[10px] md:text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-xl">
+            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Active</div>
+            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500"></div> Delayed</div>
+            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-rose-500"></div> Offline</div>
+          </div>
         </div>
-        
-        <div className="flex flex-col sm:flex-row gap-2.5 sm:items-center w-full sm:w-auto">
-          <div className="relative w-full sm:w-auto">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
-            <input 
-              type="text" 
-              placeholder="Filter by Bus #" 
-              value={filterText}
-              onChange={e => setFilterText(e.target.value)}
-              className="w-full sm:w-48 pl-9 pr-3 py-1.5 text-xs md:text-sm rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-blue-600 outline-none transition-all placeholder:text-slate-400"
-            />
-          </div>
-          <div className="flex items-center justify-between sm:justify-start gap-3 text-[11px] md:text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Active</div>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div> Delayed</div>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div> Offline</div>
-          </div>
+
+        {/* Search input with live suggestion dropdown */}
+        <div className="relative w-full">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+          <input 
+            type="text" 
+            placeholder="Search bus # or reg (e.g. Bus-004)..." 
+            value={filterText}
+            onChange={e => {
+              setFilterText(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            className="w-full pl-9 pr-8 py-2 text-xs md:text-sm rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-blue-600 outline-none transition-all placeholder:text-slate-400 font-medium"
+          />
+          {filterText && (
+            <button 
+              onClick={() => { setFilterText(''); setShowSuggestions(false); }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-[16px] material-symbols-outlined"
+            >
+              close
+            </button>
+          )}
+
+          {/* Autocomplete Dropdown List */}
+          {showSuggestions && filterText.trim().length > 0 && matchingBuses.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-[2000] overflow-hidden max-h-56 overflow-y-auto">
+              {matchingBuses.map((bus: any) => {
+                const loc = fleetLocations[bus.id];
+                return (
+                  <div
+                    key={bus.id}
+                    onClick={() => handleSelectBus(bus)}
+                    className="p-2.5 border-b border-slate-100 last:border-0 hover:bg-blue-50/60 cursor-pointer flex items-center justify-between transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                        <span className="material-symbols-outlined text-[18px]">directions_bus</span>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">Bus {bus.bus_number}</p>
+                        <p className="text-[10px] text-slate-500 font-medium">Reg: {bus.registration_number}</p>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                      loc ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {loc ? 'LIVE' : 'NO SIGNAL'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Map */}
       <div className="flex-1 min-h-[380px] rounded-2xl overflow-hidden shadow-xs border border-slate-200 relative">
-        <MapContainer center={defaultCenter} zoom={13} maxBounds={SURAT_BOUNDS} maxBoundsViscosity={1.0} className="h-full w-full">
+        <MapContainer center={mapCenter} zoom={13} maxBounds={SURAT_BOUNDS} maxBoundsViscosity={1.0} className="h-full w-full">
+          <MapController center={mapCenter} />
           <TileLayer
             attribution='&copy; Google Maps'
             url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"

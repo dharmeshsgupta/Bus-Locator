@@ -67,13 +67,13 @@ export function DriverLogin() {
         </p>
       </div>
 
-      <form onSubmit={step === 1 ? handleRequestOTP : handleVerifyOTP} className="flex flex-col gap-lg bg-surface-container-lowest p-lg rounded-xl border border-surface-container shadow-[0_4px_6px_-1px_rgb(0,0,0,0.05)]">
-        <div className="flex flex-col gap-sm">
-          <label className="text-label-md text-on-surface" htmlFor="phone">Phone Number</label>
+      <form onSubmit={step === 1 ? handleRequestOTP : handleVerifyOTP} className="flex flex-col gap-4 bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs md:text-sm font-bold text-slate-800" htmlFor="phone">Phone Number</label>
           <div className="relative flex items-center">
-            <span className="absolute left-md material-symbols-outlined text-outline">call</span>
+            <span className="absolute left-3.5 material-symbols-outlined text-slate-500 text-[20px]">call</span>
             <input
-              className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-lg pl-[48px] pr-md py-sm h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70 disabled:opacity-50"
+              className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm font-medium rounded-xl pl-11 pr-3.5 py-2.5 h-11 md:h-12 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400 disabled:opacity-50"
               id="phone" placeholder="+1 (555) 000-0000" type="tel"
               value={phone} onChange={(e) => setPhone(e.target.value)} required disabled={step === 2}
             />
@@ -81,18 +81,18 @@ export function DriverLogin() {
         </div>
 
         {step === 2 && (
-          <div className="flex flex-col gap-sm">
-            <label className="text-label-md text-on-surface" htmlFor="otp">Verification Code (OTP)</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs md:text-sm font-bold text-slate-800" htmlFor="otp">Verification Code (OTP)</label>
             <div className="relative flex items-center">
-              <span className="absolute left-md material-symbols-outlined text-outline">password</span>
+              <span className="absolute left-3.5 material-symbols-outlined text-slate-500 text-[20px]">password</span>
               <input
-                className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-lg pl-[48px] pr-md py-sm h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70"
+                className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm font-medium rounded-xl pl-11 pr-3.5 py-2.5 h-11 md:h-12 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400"
                 id="otp" placeholder="123456" type="text"
                 value={otp} onChange={(e) => setOtp(e.target.value)} required
               />
             </div>
             <div className="text-right mt-1">
-               <button type="button" onClick={() => setStep(1)} className="text-primary text-label-sm hover:underline">Change Number</button>
+               <button type="button" onClick={() => setStep(1)} className="text-blue-600 font-semibold text-xs hover:underline">Change Number</button>
             </div>
           </div>
         )}
@@ -108,7 +108,7 @@ export function DriverLogin() {
         )}
 
         <button type="submit" disabled={isLoading}
-          className="w-full bg-primary-container text-on-primary-container text-label-md rounded-lg py-sm h-12 hover:bg-primary hover:text-on-primary transition-colors flex items-center justify-center gap-sm shadow-sm disabled:opacity-60">
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl py-3 h-11 md:h-12 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] disabled:opacity-60">
           {isLoading ? (
             <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
           ) : (

@@ -42,25 +42,25 @@ export function AdminLogin() {
         <p className="text-body-sm text-on-surface-variant">Manage transport operations</p>
       </div>
 
-      <form onSubmit={handleLogin} className="flex flex-col gap-lg bg-surface-container-lowest p-lg rounded-xl border border-surface-container shadow-[0_4px_6px_-1px_rgb(0,0,0,0.05)]">
-        <div className="flex flex-col gap-sm">
-          <label className="text-label-md text-on-surface" htmlFor="admin-email">Email Address</label>
+      <form onSubmit={handleLogin} className="flex flex-col gap-4 bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs md:text-sm font-bold text-slate-800" htmlFor="admin-email">Email Address</label>
           <div className="relative flex items-center">
-            <span className="absolute left-md material-symbols-outlined text-outline">mail</span>
+            <span className="absolute left-3.5 material-symbols-outlined text-slate-500 text-[20px]">mail</span>
             <input
-              className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-lg pl-[48px] pr-md py-sm h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70"
+              className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm font-medium rounded-xl pl-11 pr-3.5 py-2.5 h-11 md:h-12 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400"
               id="admin-email" placeholder="Enter your email" type="email"
               value={email} onChange={(e) => setEmail(e.target.value)} required
             />
           </div>
         </div>
 
-        <div className="flex flex-col gap-sm">
-          <label className="text-label-md text-on-surface" htmlFor="admin-password">Password</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs md:text-sm font-bold text-slate-800" htmlFor="admin-password">Password</label>
           <div className="relative flex items-center">
-            <span className="absolute left-md material-symbols-outlined text-outline">lock</span>
+            <span className="absolute left-3.5 material-symbols-outlined text-slate-500 text-[20px]">lock</span>
             <input
-              className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-lg pl-[48px] pr-md py-sm h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70"
+              className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm font-medium rounded-xl pl-11 pr-3.5 py-2.5 h-11 md:h-12 focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400"
               id="admin-password" placeholder="Enter your password" type="password"
               value={password} onChange={(e) => setPassword(e.target.value)} required
             />
@@ -78,7 +78,7 @@ export function AdminLogin() {
         )}
 
         <button type="submit" disabled={isLoading}
-          className="w-full bg-primary-container text-on-primary-container text-label-md rounded-lg py-sm h-12 hover:bg-primary hover:text-on-primary transition-colors flex items-center justify-center gap-sm shadow-sm disabled:opacity-60">
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl py-3 h-11 md:h-12 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] disabled:opacity-60">
           {isLoading ? (
             <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
           ) : (

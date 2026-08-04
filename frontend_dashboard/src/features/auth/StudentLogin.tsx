@@ -52,46 +52,46 @@ export function StudentLogin() {
   };
 
   return (
-    <div className="flex flex-col gap-xl mt-xl md:mt-0">
+    <div className="flex flex-col gap-md md:gap-xl w-full">
       {/* Header */}
       <div className="text-center md:text-left">
-        <h2 className="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">Welcome back</h2>
-        <p className="text-body-sm text-on-surface-variant">Please select your role and sign in to continue.</p>
+        <h2 className="text-2xl md:text-headline-lg font-bold text-on-surface mb-1">Welcome back</h2>
+        <p className="text-xs md:text-body-sm text-on-surface-variant">Please select your role and sign in to continue.</p>
       </div>
 
       {/* Role Selection Grid */}
-      <div className="space-y-sm">
-        <label className="text-label-md text-on-surface-variant uppercase tracking-wider">I am a...</label>
-        <div className="grid grid-cols-2 gap-md">
+      <div className="space-y-1.5">
+        <label className="text-[11px] md:text-label-md font-semibold text-on-surface-variant uppercase tracking-wider">I am a...</label>
+        <div className="grid grid-cols-2 gap-2 md:gap-md">
           {roles.map((role) => (
             <div
               key={role.key}
               onClick={() => handleRoleClick(role)}
-              className={`cursor-pointer border rounded-xl p-md flex flex-col items-center justify-center gap-sm transition-all shadow-sm hover:shadow-md bg-surface-container-lowest ${
+              className={`cursor-pointer border rounded-xl p-2.5 md:p-md flex flex-col items-center justify-center gap-1 transition-all shadow-xs hover:shadow-md bg-surface-container-lowest ${
                 selectedRole === role.key
-                  ? 'border-primary bg-primary-fixed'
+                  ? 'border-primary bg-primary-fixed ring-1 ring-primary/30'
                   : 'border-outline-variant'
               }`}
             >
-              <span className={`material-symbols-outlined text-[28px] ${
+              <span className={`material-symbols-outlined text-[22px] md:text-[28px] ${
                 selectedRole === role.key ? 'text-primary filled' : 'text-secondary'
               }`}>
                 {role.icon}
               </span>
-              <span className="text-label-md text-on-surface">{role.label}</span>
+              <span className="text-[12px] md:text-label-md font-medium text-on-surface">{role.label}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Login Form */}
-      <form onSubmit={handleLogin} className="flex flex-col gap-lg bg-surface-container-lowest p-lg rounded-xl border border-surface-container shadow-[0_4px_6px_-1px_rgb(0,0,0,0.05)]">
-        <div className="flex flex-col gap-sm">
-          <label className="text-label-md text-on-surface" htmlFor="enrollment">Enrollment Number</label>
+      <form onSubmit={handleLogin} className="flex flex-col gap-3 md:gap-lg bg-surface-container-lowest p-4 md:p-lg rounded-2xl border border-surface-container shadow-xs">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs md:text-label-md font-semibold text-on-surface" htmlFor="enrollment">Enrollment Number</label>
           <div className="relative flex items-center">
-            <span className="absolute left-md material-symbols-outlined text-outline">badge</span>
+            <span className="absolute left-3.5 material-symbols-outlined text-outline text-[20px]">badge</span>
             <input
-              className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-lg pl-[48px] pr-md py-sm h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70"
+              className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-xl pl-11 pr-3 py-2.5 h-11 md:h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70"
               id="enrollment"
               placeholder="e.g. EN123456"
               type="text"
@@ -102,20 +102,20 @@ export function StudentLogin() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-sm">
-          <label className="text-label-md text-on-surface" htmlFor="password">Password</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs md:text-label-md font-semibold text-on-surface" htmlFor="password">Password</label>
           <div className="relative flex items-center">
-            <span className="absolute left-md material-symbols-outlined text-outline">lock</span>
+            <span className="absolute left-3.5 material-symbols-outlined text-outline text-[20px]">lock</span>
             <input
-              className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-lg pl-[48px] pr-md py-sm h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70"
+              className="w-full bg-surface-container-low border border-outline-variant text-on-surface text-body-sm rounded-xl pl-11 pr-3 py-2.5 h-11 md:h-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70"
               id="student-password" placeholder="••••••••" type="password"
               value={password} onChange={(e) => setPassword(e.target.value)} required
             />
           </div>
 
-        <div className="text-xs text-center text-slate-500 -mt-md">
-          First time? Ask the Admin to register your account.
-        </div>
+          <div className="text-[11px] text-center text-slate-500 mt-1">
+            First time? Ask the Admin to register your account.
+          </div>
         </div>
 
         {error && (

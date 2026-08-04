@@ -43,14 +43,14 @@ export function AuthLayout() {
       </div>
 
       {/* Right Login Pane */}
-      <div className="w-full md:w-1/2 lg:w-7/12 flex items-center justify-center p-margin-mobile md:p-margin-desktop bg-surface relative">
-        {/* Mobile Logo */}
-        <div className="absolute top-margin-mobile left-margin-mobile flex md:hidden items-center gap-sm">
-          <span className="material-symbols-outlined text-[28px] text-primary filled">directions_bus</span>
-          <span className="text-headline-md font-extrabold text-primary tracking-tight">BusLocator</span>
+      <div className="w-full md:w-1/2 lg:w-7/12 flex flex-col items-center justify-center px-4 py-6 md:p-margin-desktop bg-surface min-h-screen overflow-y-auto">
+        {/* Mobile Header Logo */}
+        <div className="w-full max-w-[440px] flex md:hidden items-center justify-center gap-2 mb-4">
+          <span className="material-symbols-outlined text-[30px] text-primary filled">directions_bus</span>
+          <span className="text-2xl font-extrabold text-primary tracking-tight">BusLocator</span>
         </div>
 
-        <div className="w-full max-w-[440px]">
+        <div className="w-full max-w-[440px] my-auto">
           <Outlet />
         </div>
       </div>

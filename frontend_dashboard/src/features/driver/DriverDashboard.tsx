@@ -107,41 +107,54 @@ export function DriverDashboard() {
   // GPS Tracking
   useEffect(() => {
     if (routeStatus === 'IN_PROGRESS' && busId && routeId) {
-      // Background logic is OS dependent, but standard watchPosition is here
-      watchId.current = navigator.geolocation.watchPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          const spd_ms = position.coords.speed || 0;
-          const spd_kmh = spd_ms * 3.6;
-          const acc = position.coords.accuracy;
+      const sendLocation = async (lat: number, lng: number, spd_kmh: number, acc: number) => {
+        setSpeed(spd_kmh);
+        setAccuracy(acc);
 
-          setSpeed(spd_kmh);
-          setAccuracy(acc);
+        if (spd_kmh > 8) {
+          setIsSafetyMode(true);
+        } else {
+          setIsSafetyMode(false);
+        }
 
-          // Safety Mode Toggle
-          if (spd_kmh > 8) {
-             setIsSafetyMode(true);
+        const payload = { bus_id: busId, route_id: routeId, latitude: lat, longitude: lng, speed: spd_kmh, accuracy: acc };
+        try {
+          if (isOnline) {
+            await driverApi.publishLocation(payload);
           } else {
-             setIsSafetyMode(false);
+            await offlineDB.enqueue('location', payload);
           }
+        } catch (err) {
+          // Silently handle
+        }
+      };
 
-          // Publish
-          const payload = { bus_id: busId, route_id: routeId, latitude: lat, longitude: lng, speed: spd_kmh, accuracy: acc };
-          try {
-            if (isOnline) {
-               await driverApi.publishLocation(payload);
-            } else {
-               await offlineDB.enqueue('location', payload);
-            }
-          } catch (err) {
-             // Silently handle if request drops to avoid spamming UI
-          }
-        },
-        (error) => {
-          console.error("GPS Error", error);
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      const handlePos = (position: GeolocationPosition) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const spd_ms = position.coords.speed || 0;
+        const spd_kmh = spd_ms * 3.6;
+        const acc = position.coords.accuracy || 10;
+        sendLocation(lat, lng, spd_kmh, acc);
+      };
+
+      const handleErr = (err: GeolocationPositionError) => {
+        console.warn("GPS High Accuracy Error, retrying with standard accuracy:", err);
+        navigator.geolocation.getCurrentPosition(
+          handlePos,
+          (e) => console.error("GPS Fallback Error:", e),
+          { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
+        );
+      };
+
+      // Initial position fetch
+      navigator.geolocation.getCurrentPosition(handlePos, handleErr, { enableHighAccuracy: false, timeout: 10000, maximumAge: 5000 });
+
+      // Continuous tracking
+      watchId.current = navigator.geolocation.watchPosition(
+        handlePos,
+        handleErr,
+        { enableHighAccuracy: false, timeout: 15000, maximumAge: 5000 }
       );
     } else {
       if (watchId.current !== null) {

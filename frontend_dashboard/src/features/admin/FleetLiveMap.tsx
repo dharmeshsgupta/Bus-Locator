@@ -156,34 +156,35 @@ export function FleetLiveMap() {
   const defaultCenter: [number, number] = [21.1702, 72.8311];
 
   return (
-    <div className="flex flex-col h-full space-y-4">
+    <div className="flex flex-col h-full space-y-3">
       {/* Header & Filters */}
-      <div className="flex justify-between items-center bg-surface-container-low p-4 rounded-xl shadow-sm border border-surface-container">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-3.5 md:p-4 rounded-2xl shadow-xs border border-slate-200 gap-3">
         <div>
-          <h2 className="text-title-lg font-bold">Global Fleet Tracker</h2>
-          <p className="text-body-sm text-on-surface-variant">Real-time overview of all active buses</p>
+          <h2 className="text-base md:text-title-lg font-bold text-slate-900 tracking-tight">Global Fleet Tracker</h2>
+          <p className="text-xs text-slate-500 font-medium">Real-time overview of all active buses</p>
         </div>
-        <div className="flex gap-4 items-center">
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+        
+        <div className="flex flex-col sm:flex-row gap-2.5 sm:items-center w-full sm:w-auto">
+          <div className="relative w-full sm:w-auto">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
             <input 
               type="text" 
               placeholder="Filter by Bus #" 
               value={filterText}
               onChange={e => setFilterText(e.target.value)}
-              className="pl-10 pr-4 py-2 rounded-lg border border-outline-variant bg-surface focus:outline-primary"
+              className="w-full sm:w-48 pl-9 pr-3 py-1.5 text-xs md:text-sm rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-blue-600 outline-none transition-all placeholder:text-slate-400"
             />
           </div>
-          <div className="flex gap-2 text-label-sm font-medium">
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> Active</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-500"></div> Delayed</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> Offline</div>
+          <div className="flex items-center justify-between sm:justify-start gap-3 text-[11px] md:text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Active</div>
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div> Delayed</div>
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div> Offline</div>
           </div>
         </div>
       </div>
 
       {/* Map */}
-      <div className="flex-1 rounded-xl overflow-hidden shadow-md border border-outline-variant relative">
+      <div className="flex-1 min-h-[380px] rounded-2xl overflow-hidden shadow-xs border border-slate-200 relative">
         <MapContainer center={defaultCenter} zoom={13} maxBounds={SURAT_BOUNDS} maxBoundsViscosity={1.0} className="h-full w-full">
           <TileLayer
             attribution='&copy; Google Maps'

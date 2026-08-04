@@ -25,7 +25,7 @@ async def update_location(
 @router.get("/fleet", status_code=status.HTTP_200_OK)
 async def get_fleet_locations(
     redis_client: redis.Redis = Depends(get_redis),
-    user = Depends(RequireRole(["admin", "superadmin"]))
+    user = Depends(RequireRole(["admin", "superadmin", "super_admin"]))
 ):
     # Returns the latest location snapshot of all active buses
     locations = await tracking_service.get_fleet_locations(redis_client)

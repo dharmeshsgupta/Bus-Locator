@@ -63,7 +63,7 @@ export function LiveMap() {
 
   const firstStop = stops[0];
   const position: [number, number] = currentLocation 
-    ? [currentLocation.latitude, currentLocation.longitude] 
+    ? [(currentLocation as any).lat ?? currentLocation.latitude, (currentLocation as any).lng ?? currentLocation.longitude] 
     : firstStop 
       ? [firstStop.latitude, firstStop.longitude] 
       : [21.1702, 72.8311]; // Default fallback to Surat center

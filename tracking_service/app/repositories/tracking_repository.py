@@ -27,6 +27,8 @@ class TrackingRepository:
     async def set_live_location(self, redis_client: redis.Redis, data: LocationUpdate) -> dict:
         key = self._redis_key(data.bus_id)
         payload = {
+            "bus_id": str(data.bus_id),
+            "route_id": str(data.route_id),
             "lat": data.latitude,
             "lng": data.longitude,
             "speed": data.speed,

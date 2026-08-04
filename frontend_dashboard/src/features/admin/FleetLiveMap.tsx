@@ -70,13 +70,15 @@ export function FleetLiveMap() {
     wsService.connect('fleet');
     
     const handleLocationUpdate = (payload: any) => {
+      const busId = payload.bus_id || payload.busId;
+      if (!busId) return;
       setFleetLocations(prev => ({
         ...prev,
-        [payload.bus_id]: {
-          lat: payload.latitude,
-          lng: payload.longitude,
-          speed: payload.speed,
-          timestamp: new Date().toISOString()
+        [busId]: {
+          lat: payload.lat ?? payload.latitude,
+          lng: payload.lng ?? payload.longitude,
+          speed: payload.speed || 0,
+          timestamp: payload.timestamp || new Date().toISOString()
         }
       }));
     };

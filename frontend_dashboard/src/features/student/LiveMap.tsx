@@ -84,14 +84,14 @@ export function LiveMap() {
           </div>
           <p className="text-body-sm text-secondary">Route: {assignment.route_name}</p>
           <div className="flex gap-4 mt-2 text-label-md">
-            <div><span className="text-primary font-bold">ETA:</span> {eta || '--'}</div>
-            <div><span className="text-primary font-bold">Seats:</span> {occupancy || '--'}</div>
+            <div><span className="text-primary font-bold">ETA:</span> {eta ? eta : 'En Route'}</div>
+            <div><span className="text-primary font-bold">Occupancy:</span> {occupancy !== undefined && occupancy !== null ? `${occupancy} Seats` : '0 Seats'}</div>
           </div>
         </div>
 
         <div className="bg-surface/90 backdrop-blur-md rounded-lg shadow-lg p-3 border border-outline-variant/50 pointer-events-auto text-right">
-          <p className="text-label-md text-secondary">Current: <span className="font-bold text-on-surface">{currentStop || '--'}</span></p>
-          <p className="text-label-md text-secondary mt-1">Next: <span className="font-bold text-primary">{nextStop || '--'}</span></p>
+          <p className="text-label-md text-secondary">Current: <span className="font-bold text-on-surface">{currentStop || 'In Transit'}</span></p>
+          <p className="text-label-md text-secondary mt-1">Next: <span className="font-bold text-primary">{nextStop || 'Approaching Stop'}</span></p>
         </div>
       </div>
 

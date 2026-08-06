@@ -151,9 +151,20 @@ class AssignmentService:
                 stops, _ = await stop_repository.get_by_route(db, route.id, limit=500)
                 
         # We need route_status, but since this is transport_service, the route execution 
-        # state is tracked in TrackingService. We'll default to NOT_STARTED. The 
-        # frontend will merge it with tracking service data or the tracking service will provide it.
-        # But wait, requirement says return it all here. Let's include default route_status.
+        # state is tracked in TrackingService. We query TrackingService for the live status.
+        route_status = "NOT_STARTED"
+        if route:
+            import httpx
+            import structlog
+            from app.core.config import settings
+            logger = structlog.get_logger(__name__)
+            try:
+                async with httpx.AsyncClient(timeout=2.0) as client:
+                    response = await client.get(f"{settings.TRACKING_SERVICE_URL}/api/v1/tracking/route/{route.id}/status")
+                    if response.status_code == 200:
+                        route_status = response.json().get("status", "NOT_STARTED")
+            except Exception as e:
+                logger.warning("failed_to_fetch_route_status", route_id=str(route.id), error=str(e))
                 
         return {
             "driver": {"id": str(driver_id)},
@@ -162,7 +173,7 @@ class AssignmentService:
             "stops": [{"id": str(s.id), "stop_name": s.stop_name, "sequence_number": s.sequence_number, "latitude": s.latitude, "longitude": s.longitude} for s in stops],
             "schedule": {"expected_duration_minutes": route.expected_duration_mins if route else 0},
             "assignment_status": driver_assign.assignment_status.value,
-            "route_status": "NOT_STARTED"
+            "route_status": route_status
         }
 
 assignment_service = AssignmentService()

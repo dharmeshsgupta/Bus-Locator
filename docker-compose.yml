@@ -53,6 +53,7 @@ services:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres_transport:5432/transport_db
       - JWT_SECRET_KEY=supersecretkey-please-change-in-production
       - AUTH_SERVICE_URL=http://auth_service:8000
+      - TRACKING_SERVICE_URL=http://tracking_service:8000
       - CORS_ORIGINS=*
     depends_on:
       postgres_transport:
@@ -127,6 +128,31 @@ services:
       - buslocator_net
 
   # ----------------------------------------
+  # Agentic AI Service
+  # ----------------------------------------
+  agentic_ai:
+    build:
+      context: ./agentic_ai
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - GROK_API_KEY=your_groq_api_key_here
+      - DATABASE_URL=your_supabase_db_url_here
+      - REDIS_HOST=redis_tracking
+      - REDIS_PORT=6379
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - TRANSPORT_SERVICE_URL=http://transport_service:8001
+      - TRACKING_SERVICE_URL=http://tracking_service:8000
+    depends_on:
+      - auth_service
+      - transport_service
+      - tracking_service
+      - redis_tracking
+    networks:
+      - buslocator_net
+
+  # ----------------------------------------
   # Frontend Dashboard (Nginx SPA)
   # ----------------------------------------
   frontend_dashboard:
@@ -137,12 +163,14 @@ services:
         - VITE_AUTH_API_URL=http://localhost:8000
         - VITE_TRANSPORT_API_URL=http://localhost:8001
         - VITE_TRACKING_API_URL=http://localhost:8002
+        - VITE_AGENTIC_AI_URL=http://localhost:8003
     ports:
       - "80:80"
     depends_on:
       - auth_service
       - transport_service
       - tracking_service
+      - agentic_ai
     networks:
       - buslocator_net
 

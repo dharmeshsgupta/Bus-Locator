@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     
     # Internal communication
     AUTH_SERVICE_URL: str = "http://auth_service:8000"
+    TRACKING_SERVICE_URL: str = "http://localhost:8002"
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod

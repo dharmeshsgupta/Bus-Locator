@@ -45,6 +45,27 @@ async def get_bus_location(
         raise HTTPException(status_code=404, detail="Bus location not found in real-time cache.")
     return location
 
+@router.get("/route/{route_id}/status", status_code=status.HTTP_200_OK)
+async def get_route_status(
+    route_id: uuid.UUID,
+    redis_client: redis.Redis = Depends(get_redis)
+):
+    status_data = await redis_client.hgetall(f"route:{route_id}")
+    if not status_data:
+        return {"route_id": str(route_id), "status": "NOT_STARTED", "bus_id": None}
+    
+    decoded = {}
+    for k, v in status_data.items():
+        k_str = k.decode("utf-8") if isinstance(k, bytes) else k
+        v_str = v.decode("utf-8") if isinstance(v, bytes) else v
+        decoded[k_str] = v_str
+        
+    return {
+        "route_id": str(route_id),
+        "status": decoded.get("status", "NOT_STARTED"),
+        "bus_id": decoded.get("bus_id")
+    }
+
 @router.post("/route/{action}", status_code=status.HTTP_200_OK)
 async def update_route_state(
     action: str,

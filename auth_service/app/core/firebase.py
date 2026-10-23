@@ -13,7 +13,10 @@ def init_firebase():
         return
 
     try:
-        decoded_creds = base64.b64decode(settings.FIREBASE_CREDENTIALS_BASE64).decode('utf-8')
+        # Fix missing base64 padding (common when env vars strip trailing '=' chars)
+        cred_b64 = settings.FIREBASE_CREDENTIALS_BASE64.strip()
+        cred_b64 += "=" * (-len(cred_b64) % 4)
+        decoded_creds = base64.b64decode(cred_b64).decode('utf-8')
         cred_dict = json.loads(decoded_creds)
         cred = credentials.Certificate(cred_dict)
         

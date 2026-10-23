@@ -28,6 +28,7 @@ export function StudentDashboard() {
     queryKey: ['busStatus', assignment?.bus_id],
     queryFn: () => trackingApi.getBusStatus(assignment.bus_id),
     enabled: !!assignment?.bus_id,
+    refetchInterval: 5000,
   });
 
   useEffect(() => {
@@ -36,8 +37,19 @@ export function StudentDashboard() {
       if (busData.eta) setEta(busData.eta);
       if (busData.current_stop) setCurrentStop(busData.current_stop);
       if (busData.next_stop) setNextStop(busData.next_stop);
+      
+      if (busData.lat !== undefined && busData.lng !== undefined && assignment?.bus_id) {
+        useTrackingStore.getState().setCurrentLocation({
+          busId: assignment.bus_id,
+          routeId: assignment.route_id,
+          latitude: busData.lat,
+          longitude: busData.lng,
+          speed: busData.speed ?? 0,
+          timestamp: busData.timestamp || new Date().toISOString()
+        });
+      }
     }
-  }, [busData, setOccupancy, setEta, setCurrentStop, setNextStop]);
+  }, [busData, assignment, setOccupancy, setEta, setCurrentStop, setNextStop]);
 
   useEffect(() => {
     if (!assignment?.route_id) return;

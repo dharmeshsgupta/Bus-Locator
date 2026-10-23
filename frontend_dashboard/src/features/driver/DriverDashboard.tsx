@@ -148,13 +148,13 @@ export function DriverDashboard() {
       };
 
       // Initial position fetch
-      navigator.geolocation.getCurrentPosition(handlePos, handleErr, { enableHighAccuracy: false, timeout: 10000, maximumAge: 5000 });
+      navigator.geolocation.getCurrentPosition(handlePos, handleErr, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
 
       // Continuous tracking
       watchId.current = navigator.geolocation.watchPosition(
         handlePos,
         handleErr,
-        { enableHighAccuracy: false, timeout: 15000, maximumAge: 5000 }
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
       );
     } else {
       if (watchId.current !== null) {

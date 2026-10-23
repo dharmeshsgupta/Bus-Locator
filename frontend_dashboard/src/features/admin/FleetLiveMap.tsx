@@ -61,6 +61,7 @@ export function FleetLiveMap() {
   const { data: initialLocations, isLoading: locationsLoading } = useQuery({
     queryKey: ['fleetLocations'],
     queryFn: trackingApi.getFleetLocations,
+    refetchInterval: 5000,
   });
 
   // Fetch all buses for metadata (bus number, capacity, etc)

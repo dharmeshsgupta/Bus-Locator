@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTrackingStore } from '../../store/trackingStore';
 import { wsService } from '../../services/ws/websocketService';
 import { studentApi } from '../../services/api/studentApi';
+import { trackingApi } from '../../services/api/trackingApi';
 import L from 'leaflet';
 
 // Fix for default Leaflet marker icons
@@ -23,7 +24,7 @@ const busIcon = new L.Icon({
 });
 
 export function LiveMap() {
-  const { currentLocation, eta, occupancy, connectionStatus, currentStop, nextStop } = useTrackingStore();
+  const { currentLocation, eta, occupancy, connectionStatus, currentStop, nextStop, setCurrentLocation } = useTrackingStore();
   const [routePolyline, setRoutePolyline] = useState<[number, number][]>([]);
   const [stops, setStops] = useState<any[]>([]);
 
@@ -39,6 +40,27 @@ export function LiveMap() {
     queryFn: () => studentApi.getStopsByRoute(assignment.route_id),
     enabled: !!assignment?.route_id,
   });
+
+  // Poll live bus status/coordinates
+  const { data: busData } = useQuery({
+    queryKey: ['studentBusLiveLocation', assignment?.bus_id],
+    queryFn: () => trackingApi.getBusStatus(assignment.bus_id),
+    enabled: !!assignment?.bus_id,
+    refetchInterval: 5000,
+  });
+
+  useEffect(() => {
+    if (busData && assignment?.bus_id) {
+      setCurrentLocation({
+        busId: assignment.bus_id,
+        routeId: assignment.route_id,
+        latitude: busData.lat ?? busData.latitude,
+        longitude: busData.lng ?? busData.longitude,
+        speed: busData.speed ?? 0,
+        timestamp: busData.timestamp || new Date().toISOString()
+      });
+    }
+  }, [busData, assignment, setCurrentLocation]);
 
   useEffect(() => {
     if (!assignment?.route_id) return;

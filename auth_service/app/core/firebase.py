@@ -16,7 +16,16 @@ def init_firebase():
         # Fix missing base64 padding (common when env vars strip trailing '=' chars)
         cred_b64 = settings.FIREBASE_CREDENTIALS_BASE64.strip()
         cred_b64 += "=" * (-len(cred_b64) % 4)
-        decoded_creds = base64.b64decode(cred_b64).decode('utf-8')
+        decoded_bytes = base64.b64decode(cred_b64)
+        try:
+            decoded_creds = decoded_bytes.decode('utf-8')
+        except UnicodeDecodeError:
+            logger.error(
+                "FIREBASE_CREDENTIALS_BASE64 decoded to non-UTF-8 binary data. "
+                "This usually means the env var value is not a properly base64-encoded JSON file. "
+                "Regenerate it with: cat firebase-adminsdk.json | base64 -w 0"
+            )
+            return
         cred_dict = json.loads(decoded_creds)
         cred = credentials.Certificate(cred_dict)
         

@@ -35,16 +35,20 @@ from sqlalchemy import text
 @app.on_event("startup")
 async def startup_event():
     init_firebase()
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        # Execute raw SQL ALTER TABLE queries to ensure batch, department, semester columns exist
-        try:
-            await conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS batch VARCHAR(50);"))
-            await conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS department VARCHAR(100);"))
-            await conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS semester VARCHAR(20);"))
-            logging.info("Ensured batch, department, and semester columns exist in students table.")
-        except Exception as e:
-            logging.warning(f"Could not run ALTER TABLE: {e}")
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            # Execute raw SQL ALTER TABLE queries to ensure batch, department, semester columns exist
+            try:
+                await conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS batch VARCHAR(50);"))
+                await conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS department VARCHAR(100);"))
+                await conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS semester VARCHAR(20);"))
+                logging.info("Ensured batch, department, and semester columns exist in students table.")
+            except Exception as e:
+                logging.warning(f"Could not run ALTER TABLE: {e}")
+    except Exception as e:
+        logging.error(f"Failed to connect to database on startup: {e}")
+        logging.error("The application will start but database-dependent endpoints will fail.")
 
 
 # Include routers

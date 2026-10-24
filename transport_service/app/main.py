@@ -15,8 +15,13 @@ setup_telemetry()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    import logging
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        logging.error(f"Failed to connect to database on startup: {e}")
+        logging.error("The application will start but database-dependent endpoints will fail.")
     yield
 
 app = FastAPI(
